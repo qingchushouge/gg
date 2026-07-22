@@ -4,10 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>青储收割 · 记录器</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%234CAF50'/%3E%3Ctext x='50%25' y='55%25' font-size='280' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='sans-serif'%3E🌱%3C/text%3E%3C/svg%3E">
+    <script>
+        // 动态生成 manifest 并注入
+        (function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 192;
+            canvas.height = 192;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(0, 0, 192, 192);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 100px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🌱', 96, 96);
+            const iconURL = canvas.toDataURL('image/png');
+
+            const manifest = {
+                name: '青储收割',
+                short_name: '青储收割',
+                description: '青储收割记录工具',
+                start_url: '.',
+                display: 'standalone',
+                background_color: '#f0f2f5',
+                theme_color: '#4CAF50',
+                icons: [{
+                    src: iconURL,
+                    sizes: '192x192',
+                    type: 'image/png',
+                    purpose: 'any'
+                }]
+            };
+            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = URL.createObjectURL(blob);
+            document.head.appendChild(link);
+        })();
+    </script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:system-ui,-apple-system,sans-serif; background:#f0f2f5; padding:10px 10px 70px 10px; color:#222; }
         .container { max-width:500px; margin:0 auto; }
+
         .brand-header {
             background: linear-gradient(135deg,#2E7D32,#4CAF50); color:white; border-radius:16px;
             padding:18px 16px; margin-bottom:10px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,0.12);
@@ -865,10 +905,16 @@
 
     openDB().then(() => { buildGrids(); refreshSelects(); renderAll(); });
 
+    // Service Worker 注册
     if ('serviceWorker' in navigator) {
-        const swCode = `const CACHE_NAME='qcxg-v2';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['.'])))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' }); const swURL = URL.createObjectURL(swBlob);
-        window.addEventListener('load', () => { navigator.serviceWorker.register(swURL).catch(err => console.log('SW failed', err)); });
+        window.addEventListener('load', () => {
+            const swCode = `const CACHE_NAME='qcxg-v3';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(['.'])))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`;
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swURL)
+                .then(() => console.log('SW registered'))
+                .catch(err => console.log('SW failed', err));
+        });
     }
 </script>
 </body>
