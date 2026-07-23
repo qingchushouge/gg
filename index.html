@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>青储收割 · 记录器</title>
-    
-    <!-- 关键：直接链接静态 manifest.json -->
     <link rel="manifest" href="manifest.json">
-    
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:system-ui,-apple-system,sans-serif; background:#f0f2f5; padding:10px 10px 70px 10px; color:#222; }
         .container { max-width:500px; margin:0 auto; }
+
         .brand-header {
             background: linear-gradient(135deg,#2E7D32,#4CAF50); color:white; border-radius:16px;
             padding:18px 16px; margin-bottom:10px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,0.12);
         }
         .brand-header .main-title { font-size:28px; font-weight:700; letter-spacing:4px; margin-bottom:4px; text-shadow:0 2px 4px rgba(0,0,0,0.2); }
         .brand-header .sub-title { font-size:14px; font-weight:400; opacity:0.95; letter-spacing:2px; border-top:1px solid rgba(255,255,255,0.35); padding-top:6px; margin-top:4px; }
+
         .page { display:none; background:white; border-radius:12px; padding:16px; margin-bottom:10px; border:3px solid #4CAF50; min-height:calc(100vh - 180px); }
         .page.active { display:block; }
+
         h2 { font-size:18px; font-weight:700; margin-bottom:10px; color:#1a1a1a; border-left:3px solid #4CAF50; padding-left:8px; }
         .section-title { font-size:14px; font-weight:600; color:#555; margin:12px 0 6px 0; padding-left:6px; border-left:2px solid #ccc; }
         .tip { font-size:12px; color:#555; margin-bottom:8px; background:#fff8e1; padding:8px; border-radius:8px; border-left:3px solid #ff9800; font-weight:500; }
@@ -38,7 +38,10 @@
         .btn-small { padding:6px 12px; font-size:13px; }
         .btn-danger { background:#f44336; }
         .btn-photo { background:#1565c0; color:white; border:none; border-radius:8px; padding:10px 14px; font-size:14px; display:flex; align-items:center; gap:5px; cursor:pointer; }
-        .btn-manage { background:#e8f5e9; border-radius:8px; padding:3px 5px; cursor:pointer; border:1px solid #c8e6c9; display:inline-flex; align-items:center; gap:2px; line-height:1; }
+        .btn-manage {
+            background:#e8f5e9; border-radius:8px; padding:3px 5px; cursor:pointer; border:1px solid #c8e6c9;
+            display:inline-flex; align-items:center; gap:2px; line-height:1;
+        }
         .btn-manage .gear-icon { font-size:20px; line-height:1; color:#0A84FF; }
         .btn-manage .vertical-text { display:flex; flex-direction:column; align-items:center; font-size:11px; line-height:1.2; font-weight:500; color:#000; }
         .btn-save-tons { background:#4CAF50; color:white; padding:4px 8px; font-size:11px; border-radius:5px; border:none; cursor:pointer; font-weight:600; }
@@ -87,17 +90,24 @@
         .save-hint { font-size:12px; color:#888; text-align:center; margin-top:6px; }
         .checkbox-label { display:flex; align-items:center; gap:5px; font-size:13px; color:#333; }
         .checkbox-label input { width:auto; margin:0; }
-        .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid #4CAF50; display:flex; justify-content:space-around; align-items:center; padding:8px 0; z-index:500; box-shadow:0 -2px 8px rgba(0,0,0,0.05); }
+
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid #4CAF50;
+            display:flex; justify-content:space-around; align-items:center; padding:8px 0; z-index:500; box-shadow:0 -2px 8px rgba(0,0,0,0.05);
+        }
         .nav-item { display:flex; flex-direction:column; align-items:center; font-size:12px; color:#666; cursor:pointer; padding:4px 12px; border-radius:8px; }
         .nav-item.active { color:#4CAF50; font-weight:600; }
         .nav-item .nav-icon { font-size:20px; margin-bottom:2px; }
+
         .export-section { margin-bottom:12px; }
         .export-count { text-align:center; font-size:15px; color:#4CAF50; font-weight:600; margin:8px 0; }
         .export-buttons { display:flex; gap:8px; flex-wrap:wrap; }
         .export-buttons .btn { flex:1; min-width:100px; }
         .export-buttons .btn:disabled { background:#ccc; cursor:not-allowed; }
+
         .search-row { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; }
         .search-row input, .search-row select { flex:1; min-width:0; font-size:15px; }
+
         .admin-details { margin-top:15px; border-top:1px dashed #ccc; padding-top:10px; }
         .admin-details summary { font-size:14px; font-weight:600; color:#666; cursor:pointer; padding:6px 0; outline:none; }
         .admin-details .btn { margin-top:8px; width:100%; }
@@ -107,6 +117,7 @@
         .pwd-modal-content input { margin:12px 0; padding:10px; width:100%; border:1px solid #ccc; border-radius:8px; font-size:16px; text-align:center; }
         .pwd-modal-content .btn-group { display:flex; gap:8px; margin-top:10px; }
         .pwd-modal-content .btn-group .btn { flex:1; }
+
         .date-wrapper { position:relative; flex:1; }
         .date-wrapper input { width:100%; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box; }
         .date-placeholder { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:15px; color:#888; pointer-events:none; background:#fafafa; padding:0 4px; transition:opacity 0.2s; }
@@ -159,7 +170,7 @@
                 <div id="stepProvince"><div class="step-title">① 选择省份简称</div><div class="grid" id="provinceGrid"></div></div>
                 <div id="stepLetter" style="display:none;"><div class="step-title">② 选择发牌机关代号</div><div class="grid" id="letterGrid"></div></div>
                 <div id="stepSerial" style="display:none;"><div class="step-title">③ 号码（最多6位）</div>
-                    <div class="serial-input-area"><input type="text" id="serialInput" placeholder="点下方键或手打" maxlength="6" autocomplete="off"></div>
+                    <div class="serial-input-area"><input type="text" id="serialInput" placeholder="点下方键选择" maxlength="6" autocomplete="off" readonly="readonly"></div>
                     <div class="grid" id="digitGrid" style="margin-top:4px;"></div>
                 </div>
                 <div class="panel-actions">
@@ -496,7 +507,13 @@
         document.getElementById('digitGrid').innerHTML = DIGITS.map(d => `<button onclick="appendSerial('${d}')">${d}</button>`).join('');
     }
     function selectProvince(p) { plateProvince = p; updatePlatePreview(); document.getElementById('stepProvince').style.display='none'; document.getElementById('stepLetter').style.display='block'; }
-    function selectLetter(l) { plateLetter = l; updatePlatePreview(); document.getElementById('stepLetter').style.display='none'; document.getElementById('stepSerial').style.display='block'; document.getElementById('serialInput').focus(); }
+    function selectLetter(l) {
+        plateLetter = l;
+        updatePlatePreview();
+        document.getElementById('stepLetter').style.display = 'none';
+        document.getElementById('stepSerial').style.display = 'block';
+        // 不自动聚焦，键盘不会弹出
+    }
     function appendSerial(char) { if(plateSerial.length>=6) return; plateSerial += char; document.getElementById('serialInput').value = plateSerial; updatePlatePreview(); }
     document.getElementById('serialInput').addEventListener('input', function() {
         this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0,6);
@@ -855,7 +872,7 @@
 
     openDB().then(() => { buildGrids(); refreshSelects(); renderAll(); });
 
-    // Service Worker 注册（链接静态文件）
+    // 静态 Service Worker 注册
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
