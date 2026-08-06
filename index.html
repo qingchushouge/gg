@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>青储收割 · 记录器</title>
     <link rel="manifest" href="manifest.json">
     <style>
@@ -10,7 +10,7 @@
         body {
             font-family:system-ui,-apple-system,sans-serif;
             background:#f0f2f5;
-            padding:10px 10px 70px 10px;
+            padding:10px 10px calc(70px + env(safe-area-inset-bottom, 0px)) 10px;
             color:#222;
             margin:0;
         }
@@ -40,7 +40,7 @@
         .form-group { margin-bottom:12px; }
         label { display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:#333; }
         .label-hint { font-size:11px; font-weight:400; color:#888; }
-        .flex-row { display:flex; gap:6px; align-items:center; }
+        .flex-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
         select, input[type="text"], input[type="number"], input[type="date"] {
             padding:8px 10px; border:1px solid #ccc; border-radius:8px; font-size:15px; background:#fafafa; width:100%; color:#222;
         }
@@ -63,7 +63,7 @@
         .btn-warn.active { background:#d32f2f; }
         .btn-del { background:#f44336; color:white; padding:4px 8px; font-size:11px; border-radius:5px; border:none; cursor:pointer; font-weight:600; }
         .btn-batch-del { background:#d32f2f; color:white; padding:8px 14px; font-size:13px; border-radius:8px; border:none; cursor:pointer; font-weight:600; display:none; }
-        .photo-area { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+        .photo-area { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
         .photo-preview { width:90px; height:68px; border:2px dashed #ccc; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#fafafa; overflow:hidden; }
         .photo-preview img { width:100%; height:100%; object-fit:cover; }
         .plate-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:5px; max-height:75px; overflow-y:auto; }
@@ -78,7 +78,12 @@
         .empty-state { text-align:center; color:#999; padding:20px; }
         .summary-controls { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
         .summary-controls select, .summary-controls input { flex:1; min-width:90px; font-size:13px; padding:8px; }
-        .summary-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+        .table-wrapper {
+            width:100%;
+            overflow-x:auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .summary-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; min-width:500px; }
         .summary-table th { background:#e8f5e9; color:#1a1a1a; font-weight:700; padding:8px 6px; border:1px solid #c8e6c9; text-align:center; }
         .summary-table td { padding:6px; border:1px solid #e0e0e0; text-align:center; }
         .summary-table tr:nth-child(even) td { background:#f9f9f9; }
@@ -87,21 +92,25 @@
         .plate-panel.open { display:block; }
         .plate-preview { background:white; border:2px solid #4CAF50; border-radius:6px; padding:8px; font-size:18px; font-weight:700; text-align:center; letter-spacing:2px; margin-bottom:8px; }
         .step-title { font-size:14px; font-weight:600; margin-bottom:3px; color:#333; }
-        .grid { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; }
-        .grid button { width:34px; height:34px; font-size:14px; border:1px solid #bbb; background:white; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:500; }
+        .grid { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; justify-content:center; }
+        .grid button {
+            min-width:34px; height:34px; font-size:14px; border:1px solid #bbb; background:white;
+            border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+            font-weight:500; padding:0 4px;
+        }
         .serial-display {
             min-height:38px; padding:8px 10px; border:1px solid #ccc; border-radius:8px;
             background:#fafafa; font-size:15px; color:#222; line-height:1.4; word-break:break-all;
             width:100%; box-sizing:border-box;
         }
-        .panel-actions { display:flex; gap:5px; margin-top:10px; }
-        .plate-input-row { display:flex; gap:5px; align-items:center; }
-        .plate-input-row input { flex:1; background:#fff; font-weight:500; }
+        .panel-actions { display:flex; gap:5px; margin-top:10px; flex-wrap:wrap; }
+        .plate-input-row { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+        .plate-input-row input { flex:1; background:#fff; font-weight:500; min-width:120px; }
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000; }
         .modal.active { display:flex; }
         .modal-content { background:white; border-radius:14px; padding:16px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto; }
         .list-ul { list-style:none; margin:8px 0; max-height:180px; overflow-y:auto; }
-        .list-ul li { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; }
+        .list-ul li { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; flex-wrap:wrap; }
         .submit-buttons { margin-top:auto; padding-top:16px; width:100%; }
         .submit-buttons .btn { width:100%; display:block; }
         .save-hint { font-size:12px; color:#888; text-align:center; margin-top:6px; }
@@ -110,7 +119,8 @@
 
         .bottom-nav {
             position:fixed; bottom:0; left:0; right:0; background:white; border-top:2px solid #4CAF50;
-            display:flex; justify-content:space-around; align-items:center; padding:8px 0; z-index:500; box-shadow:0 -2px 8px rgba(0,0,0,0.05);
+            display:flex; justify-content:space-around; align-items:center; padding:8px 0 env(safe-area-inset-bottom, 0px) 0;
+            z-index:500; box-shadow:0 -2px 8px rgba(0,0,0,0.05);
         }
         .nav-item { display:flex; flex-direction:column; align-items:center; font-size:12px; color:#666; cursor:pointer; padding:4px 12px; border-radius:8px; }
         .nav-item.active { color:#4CAF50; font-weight:600; }
@@ -128,14 +138,14 @@
         .admin-details { margin-top:15px; border-top:1px dashed #ccc; padding-top:10px; }
         .admin-details summary { font-size:14px; font-weight:600; color:#666; cursor:pointer; padding:6px 0; outline:none; }
         .admin-details .btn { margin-top:8px; width:100%; }
-        .summary-toggle { margin-bottom:8px; display:flex; gap:6px; }
-        .summary-toggle .btn { flex:1; font-size:13px; padding:6px; }
+        .summary-toggle { margin-bottom:8px; display:flex; gap:6px; flex-wrap:wrap; }
+        .summary-toggle .btn { flex:1; font-size:13px; padding:6px; min-width:80px; }
         .pwd-modal-content { background:white; border-radius:14px; padding:20px; width:90%; max-width:360px; text-align:center; }
         .pwd-modal-content input { margin:12px 0; padding:10px; width:100%; border:1px solid #ccc; border-radius:8px; font-size:16px; text-align:center; }
-        .pwd-modal-content .btn-group { display:flex; gap:8px; margin-top:10px; }
-        .pwd-modal-content .btn-group .btn { flex:1; }
+        .pwd-modal-content .btn-group { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+        .pwd-modal-content .btn-group .btn { flex:1; min-width:60px; }
 
-        .date-wrapper { position:relative; flex:1; }
+        .date-wrapper { position:relative; flex:1; min-width:90px; }
         .date-wrapper input { width:100%; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box; }
         .date-placeholder {
             position:absolute; left:10px; top:50%; transform:translateY(-50%);
@@ -187,10 +197,13 @@
     <div class="page" id="pageList">
         <h2>📋 磅单录入</h2>
         <div class="search-row" style="flex-direction: column;">
-            <div style="display:flex; gap:5px;"><input type="text" id="searchPlate" placeholder="车牌号" oninput="renderFilteredRecords()" style="flex:1; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box;"><select id="searchPlot" onchange="renderFilteredRecords()" style="flex:1; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box;"><option value="">全部地块</option></select></div>
-            <div style="display:flex; gap:5px;"><select id="searchFarm" onchange="renderFilteredRecords()" style="flex:1; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box;"><option value="">全部牧场</option></select><div class="date-wrapper"><input type="date" id="searchDate" onchange="renderFilteredRecords()"><span class="date-placeholder">选择时间</span></div></div>
+            <div style="display:flex; gap:5px; flex-wrap:wrap;"><input type="text" id="searchPlate" placeholder="车牌号" oninput="renderFilteredRecords()" style="flex:1; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box;"><select id="searchPlot" onchange="renderFilteredRecords()" style="flex:1; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box;"><option value="">全部地块</option></select></div>
+            <div style="display:flex; gap:5px; flex-wrap:wrap;"><select id="searchFarm" onchange="renderFilteredRecords()" style="flex:1; height:38px; padding:6px 10px; font-size:15px; border:1px solid #ccc; border-radius:8px; background:#fafafa; box-sizing:border-box;"><option value="">全部牧场</option></select><div class="date-wrapper"><input type="date" id="searchDate" onchange="renderFilteredRecords()"><span class="date-placeholder">选择时间</span></div></div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label class="checkbox-label"><input type="checkbox" id="showErrors" onchange="toggleErrorMode()">显示错误</label><button class="btn-batch-del" id="btnBatchDel" onclick="batchDeleteErrors()">🗑 删除全部错误</button></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+            <label class="checkbox-label"><input type="checkbox" id="showErrors" onchange="toggleErrorMode()">显示错误</label>
+            <button class="btn-batch-del" id="btnBatchDel" onclick="batchDeleteErrors()">🗑 删除全部错误</button>
+        </div>
         <div class="tip">💡 填完吨数后点击【保存】。错误记录不参与汇总。</div>
         <div id="recordList" class="record-list"><div class="empty-state">暂无记录</div></div>
     </div>
@@ -199,7 +212,7 @@
     <div class="page" id="pageExport">
         <h2>📥 导出数据</h2>
         <div class="export-section"><label>地块（可选）</label><select id="exportPlotFilter" onchange="updateExportCount()"><option value="">全部地块</option></select></div>
-        <div class="export-section"><label>日期范围（可选）</label><div style="display:flex; gap:4px; align-items:center;"><input type="date" id="exportDateStart" onchange="updateExportCount()" style="flex:1;"><span>至</span><input type="date" id="exportDateEnd" onchange="updateExportCount()" style="flex:1;"></div></div>
+        <div class="export-section"><label>日期范围（可选）</label><div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;"><input type="date" id="exportDateStart" onchange="updateExportCount()" style="flex:1;"><span>至</span><input type="date" id="exportDateEnd" onchange="updateExportCount()" style="flex:1;"></div></div>
         <div class="export-count" id="exportCount">共 0 条正常记录</div>
         <div class="export-buttons"><button class="btn btn-primary" id="btnExportFiltered" onclick="doExport('filtered')">按条件导出</button><button class="btn btn-outline" id="btnExportAll" onclick="doExport('all')">导出全部正常记录</button></div>
         <details class="admin-details">
@@ -208,7 +221,7 @@
             <button class="btn btn-outline btn-small" onclick="backupData()">💾 备份数据（JSON）</button>
             <button class="btn btn-outline btn-small" onclick="document.getElementById('restoreFile').click()">📥 从备份恢复</button>
             <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="restoreData(this)">
-            <div style="display:flex; gap:6px; margin-top:8px; align-items:center;"><input type="date" id="cleanDate" style="flex:1;"><button class="btn btn-danger btn-small" onclick="cleanOldPhotos()">🗑 清理此日期前照片</button></div>
+            <div style="display:flex; gap:6px; margin-top:8px; align-items:center; flex-wrap:wrap;"><input type="date" id="cleanDate" style="flex:1;"><button class="btn btn-danger btn-small" onclick="cleanOldPhotos()">🗑 清理此日期前照片</button></div>
             <button class="btn btn-danger btn-small" onclick="openClearPwdModal()">⚠️ 清空全部数据</button>
         </details>
     </div>
@@ -283,8 +296,8 @@
 
     function getNormalRecordsForSummary() { return loadRecords().then(all => { const normal = all.filter(r => r.status !== 'error'); const plotFilter = document.getElementById('summaryPlotFilter').value; const farmFilter = document.getElementById('summaryFarmFilter').value; const dateVal = document.getElementById('summaryDate').value; return normal.filter(r => { if (plotFilter && r.plot !== plotFilter) return false; if (farmFilter && r.farm !== farmFilter) return false; if (dateVal) { const ts = r.timestamp; if(!ts) return false; const d = new Date(dateVal); const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); const end = start + 86400000; if(ts < start || ts >= end) return false; } return true; }); }); }
     async function renderSummary() { summaryMode === 'group' ? await renderPlotSummary() : await renderPlateSummary(); }
-    async function renderPlotSummary() { const normalRecords = await getNormalRecordsForSummary(); const summaryDiv = document.getElementById('plotSummary'); let rows = [], map = {}; normalRecords.forEach(r => { const key = `${r.plot}|||${r.farm}`; if (!map[key]) map[key] = { plot: r.plot, farm: r.farm, cars:0, tonsMine:0, tonsOwner:0, diff:0 }; map[key].cars++; map[key].tonsMine+=parseFloat(r.tonsMine)||0; map[key].tonsOwner+=parseFloat(r.tonsOwner)||0; map[key].diff+=parseFloat(r.diff)||0; }); rows = Object.values(map).sort((a,b) => a.plot.localeCompare(b.plot,'zh')||a.farm.localeCompare(b.farm,'zh')); if(rows.length===0) { summaryDiv.innerHTML='<div class="empty-state">暂无数据</div>'; return; } const totalCars = rows.reduce((s,r)=>s+r.cars,0), totalTonsMine = rows.reduce((s,r)=>s+r.tonsMine,0), totalTonsOwner = rows.reduce((s,r)=>s+r.tonsOwner,0), totalDiff = rows.reduce((s,r)=>s+r.diff,0); let html = '<table class="summary-table"><thead><tr><th>地块</th><th>牧场</th><th>车数</th><th>牧场吨</th><th>地主吨</th><th>差额</th></tr></thead><tbody>'; rows.forEach(r=>{ html += `<tr><td>${r.plot}</td><td>🐄 ${r.farm}</td><td>${r.cars}</td><td>${r.tonsMine.toFixed(3)}</td><td>${r.tonsOwner.toFixed(3)}</td><td>${r.diff.toFixed(3)}</td></tr>`; }); if(rows.length>1) html += `<tr class="total-row"><td colspan="2">合计</td><td>${totalCars}</td><td>${totalTonsMine.toFixed(3)}</td><td>${totalTonsOwner.toFixed(3)}</td><td>${totalDiff.toFixed(3)}</td></tr>`; html += '</tbody></table>'; summaryDiv.innerHTML = html; }
-    async function renderPlateSummary() { const normalRecords = await getNormalRecordsForSummary(); const summaryDiv = document.getElementById('plotSummary'); const plateMap = {}; normalRecords.forEach(r => { if (!plateMap[r.plate]) plateMap[r.plate] = { plate: r.plate, cars:0, tonsMine:0, tonsOwner:0, diff:0 }; plateMap[r.plate].cars++; plateMap[r.plate].tonsMine+=parseFloat(r.tonsMine)||0; plateMap[r.plate].tonsOwner+=parseFloat(r.tonsOwner)||0; plateMap[r.plate].diff+=parseFloat(r.diff)||0; }); let rows = Object.values(plateMap).sort((a,b) => a.plate.localeCompare(b.plate)); if(rows.length===0) { summaryDiv.innerHTML='<div class="empty-state">暂无数据</div>'; return; } const totalCars = rows.reduce((s,r)=>s+r.cars,0), totalTonsMine = rows.reduce((s,r)=>s+r.tonsMine,0), totalTonsOwner = rows.reduce((s,r)=>s+r.tonsOwner,0), totalDiff = rows.reduce((s,r)=>s+r.diff,0); let html = '<table class="summary-table"><thead><tr><th>车牌号</th><th>车数</th><th>牧场吨</th><th>地主吨</th><th>差额</th></tr></thead><tbody>'; rows.forEach(r=>{ html += `<tr><td>🚛 ${r.plate}</td><td>${r.cars}</td><td>${r.tonsMine.toFixed(3)}</td><td>${r.tonsOwner.toFixed(3)}</td><td>${r.diff.toFixed(3)}</td></tr>`; }); if(rows.length>1) html += `<tr class="total-row"><td>合计</td><td>${totalCars}</td><td>${totalTonsMine.toFixed(3)}</td><td>${totalTonsOwner.toFixed(3)}</td><td>${totalDiff.toFixed(3)}</td></tr>`; html += '</tbody></table>'; summaryDiv.innerHTML = html; }
+    async function renderPlotSummary() { const normalRecords = await getNormalRecordsForSummary(); const summaryDiv = document.getElementById('plotSummary'); let rows = [], map = {}; normalRecords.forEach(r => { const key = `${r.plot}|||${r.farm}`; if (!map[key]) map[key] = { plot: r.plot, farm: r.farm, cars:0, tonsMine:0, tonsOwner:0, diff:0 }; map[key].cars++; map[key].tonsMine+=parseFloat(r.tonsMine)||0; map[key].tonsOwner+=parseFloat(r.tonsOwner)||0; map[key].diff+=parseFloat(r.diff)||0; }); rows = Object.values(map).sort((a,b) => a.plot.localeCompare(b.plot,'zh')||a.farm.localeCompare(b.farm,'zh')); if(rows.length===0) { summaryDiv.innerHTML='<div class="empty-state">暂无数据</div>'; return; } const totalCars = rows.reduce((s,r)=>s+r.cars,0), totalTonsMine = rows.reduce((s,r)=>s+r.tonsMine,0), totalTonsOwner = rows.reduce((s,r)=>s+r.tonsOwner,0), totalDiff = rows.reduce((s,r)=>s+r.diff,0); let html = '<div class="table-wrapper"><table class="summary-table"><thead><tr><th>地块</th><th>牧场</th><th>车数</th><th>牧场吨</th><th>地主吨</th><th>差额</th></tr></thead><tbody>'; rows.forEach(r=>{ html += `<tr><td>${r.plot}</td><td>🐄 ${r.farm}</td><td>${r.cars}</td><td>${r.tonsMine.toFixed(3)}</td><td>${r.tonsOwner.toFixed(3)}</td><td>${r.diff.toFixed(3)}</td></tr>`; }); if(rows.length>1) html += `<tr class="total-row"><td colspan="2">合计</td><td>${totalCars}</td><td>${totalTonsMine.toFixed(3)}</td><td>${totalTonsOwner.toFixed(3)}</td><td>${totalDiff.toFixed(3)}</td></tr>`; html += '</tbody></table></div>'; summaryDiv.innerHTML = html; }
+    async function renderPlateSummary() { const normalRecords = await getNormalRecordsForSummary(); const summaryDiv = document.getElementById('plotSummary'); const plateMap = {}; normalRecords.forEach(r => { if (!plateMap[r.plate]) plateMap[r.plate] = { plate: r.plate, cars:0, tonsMine:0, tonsOwner:0, diff:0 }; plateMap[r.plate].cars++; plateMap[r.plate].tonsMine+=parseFloat(r.tonsMine)||0; plateMap[r.plate].tonsOwner+=parseFloat(r.tonsOwner)||0; plateMap[r.plate].diff+=parseFloat(r.diff)||0; }); let rows = Object.values(plateMap).sort((a,b) => a.plate.localeCompare(b.plate)); if(rows.length===0) { summaryDiv.innerHTML='<div class="empty-state">暂无数据</div>'; return; } const totalCars = rows.reduce((s,r)=>s+r.cars,0), totalTonsMine = rows.reduce((s,r)=>s+r.tonsMine,0), totalTonsOwner = rows.reduce((s,r)=>s+r.tonsOwner,0), totalDiff = rows.reduce((s,r)=>s+r.diff,0); let html = '<div class="table-wrapper"><table class="summary-table"><thead><tr><th>车牌号</th><th>车数</th><th>牧场吨</th><th>地主吨</th><th>差额</th></tr></thead><tbody>'; rows.forEach(r=>{ html += `<tr><td>🚛 ${r.plate}</td><td>${r.cars}</td><td>${r.tonsMine.toFixed(3)}</td><td>${r.tonsOwner.toFixed(3)}</td><td>${r.diff.toFixed(3)}</td></tr>`; }); if(rows.length>1) html += `<tr class="total-row"><td>合计</td><td>${totalCars}</td><td>${totalTonsMine.toFixed(3)}</td><td>${totalTonsOwner.toFixed(3)}</td><td>${totalDiff.toFixed(3)}</td></tr>`; html += '</tbody></table></div>'; summaryDiv.innerHTML = html; }
 
     function renderSummaryFilters() { const plots = getList(PLOTS_KEY); const farms = getList(FARMS_KEY); document.getElementById('summaryPlotFilter').innerHTML = '<option value="">全部地块</option>' + plots.map(p=>`<option value="${p}">${p}</option>`).join(''); document.getElementById('summaryFarmFilter').innerHTML = '<option value="">全部牧场</option>' + farms.map(f=>`<option value="${f}">${f}</option>`).join(''); }
     function refreshExportFilters() { const plots = getList(PLOTS_KEY); document.getElementById('exportPlotFilter').innerHTML = '<option value="">全部地块</option>' + plots.map(p => `<option value="${p}">${p}</option>`).join(''); }
@@ -295,7 +308,6 @@
     function initDatePlaceholders() { document.querySelectorAll('.date-wrapper input[type="date"]').forEach(input => { const placeholder = input.parentElement.querySelector('.date-placeholder'); if (!placeholder) return; const updatePlaceholder = () => { placeholder.style.opacity = input.value ? '0' : '1'; }; input.addEventListener('input', updatePlaceholder); input.addEventListener('focus', () => { placeholder.style.opacity = '0'; }); input.addEventListener('blur', updatePlaceholder); updatePlaceholder(); }); }
     initDatePlaceholders();
 
-    // 生成测试数据
     async function generateTestData() {
         if (!confirm('将生成 120 条测试数据（沙洼村/中旺村，18-22吨，含地主吨和牧场吨），确定继续吗？')) return;
         const plates = ['冀A·12345','冀A·23456','冀A·34567','冀A·45678','冀A·56789','冀A·67890','冀A·78901','冀A·89012','冀A·90123','冀A·11223','冀A·22334','冀A·33445','冀A·44556','冀A·55667'];
